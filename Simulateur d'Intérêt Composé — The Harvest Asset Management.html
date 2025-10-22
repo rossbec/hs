@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<!-- saved from url=(0063)file:///C:/Users/EVERMATE/Desktop/Simulateur-Harvest/index.html -->
+<html lang="fr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Simulateur d'Intérêt Composé — The Harvest Asset Management</title>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+  <!-- html2canvas + jsPDF for PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="wrap">
+    <!-- NAV -->
+    <div class="nav" role="navigation" aria-label="header">
+      <div class="nav-left">
+        <!-- Place HARVEST.png in same folder (or adjust path) -->
+        <img src="HARVEST.png" alt="Harvest Asset Management logo" class="logo-img">
+      </div>
+
+      <div class="nav-center">
+        <div class="lang-toggle" role="tablist" aria-label="language">
+          <button id="btn-fr" class="" data-lang="fr">FR</button>
+          <button id="btn-en" data-lang="en" class="active">EN</button>
+        </div>
+      </div>
+
+      <div class="nav-right">
+        <div id="slogan">A new for your investment</div>
+      </div>
+    </div>
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-left">
+        <h1 id="main-title">Compound Interest Simulator</h1>
+        <p id="hero-p">Visualize the potential growth of your investments with our professional calculator</p>
+      </div>
+      <div style="min-width:180px;text-align:center">
+        <div class="muted">Monnaie affichée : <strong>FCFA</strong></div>
+      </div>
+    </div>
+
+    <!-- GRID -->
+    <div class="grid">
+      <!-- LEFT: FORM -->
+      <aside class="panel">
+        <h3 id="form-title">Investment parameters (in XAF)</h3>
+
+        <div class="field">
+          <label id="label-initial">Initial amount</label>
+          <input id="initial" type="number" placeholder="Ex: 100000" value="0" min="0">
+        </div>
+
+        <div class="field">
+          <label id="label-monthly">Monthly contribution</label>
+          <input id="monthly" type="number" placeholder="Ex: 20000" value="0" min="0">
+        </div>
+
+        <div class="field">
+        <label id="label-rate">Annual interest rate (%)</label>
+        <input id="rate" type="number" step="0.01" placeholder="Ex: 7.5" value="" min="0">
+        </div>
+
+        <div class="field">
+        <label id="label-variance">Rate variance (±% e.g. 1 = ±1%)</label>
+        <input id="variance" type="number" step="0.01" placeholder="Ex: 1" value="0" min="0">
+        </div>
+
+        <div class="field">
+          <label id="label-years">Duration (years)</label>
+          <input id="years" type="number" placeholder="Ex: 10" value="0" min="1">
+        </div>
+
+        <div class="field">
+          <label id="label-freq">Compounding frequency</label>
+          <select id="freq">
+            <option value="daily">Quotidiennement</option>
+            <option value="monthly" selected="">Mensuellement</option>
+            <option value="quarterly">Trimestriellement</option>
+            <option value="semiannual">Semestriellement</option>
+            <option value="annual">Annuellement</option>
+          </select>
+        </div>
+
+       <div class="btns" style="width:100%;">
+          <button id="calculate" class="btn primary">Calculate</button>
+          <button id="reset" class="btn ghost">Reset</button> 
+        </div>
+
+        <div style="margin-top:12px;">
+          <button id="exportPdf" class="btn warn" style="width:100%;">Export PDF (high resolution)</button>
+        </div>
+    
+        <div style="margin-top:8px;">
+          <button id="exportCsv" class="btn ghost" style="width:100%;">Export CSV (annual breakdown)</button>
+        </div>
+      </aside>
+
+      <!-- RIGHT: RESULTS -->
+      <main class="right-col">
+        <div class="cards">
+          <div class="card blue">
+            <h4 id="label-fv">Future value</h4>
+            <div class="value" id="fv">– FCFA</div>
+          </div>
+
+          <div class="card green">
+            <h4 id="label-tc">Total contributions</h4>
+            <div class="value" id="tc">– FCFA</div>
+            <div class="muted">Capital + Apports</div>
+          </div>
+
+          <div class="card violet">
+            <h4 id="label-ie">Interest earned</h4>
+            <div class="value" id="ie">– FCFA</div>
+            <div class="muted">Gain estimé</div>
+          </div>
+        </div>
+
+        <div class="chart-panel">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div class="tabs" role="tablist">
+              <div class="tab active" id="tab-area">Area view</div>
+              <div class="tab" id="tab-line">Detailed view</div>
+            </div>
+          </div>
+
+          <canvas id="chart" style="width:100%;height:340px;margin-top:6px"></canvas>
+        </div>
+
+        <div class="analysis">
+          <div class="bloc">
+            <div class="muted">Récapitulatif complet</div>
+            <div style="margin-top:8px">
+              <div>Montant initial: <span id="a-initial">–</span> FCFA</div>
+              <div>Contribution mensuelle: <span id="a-monthly">–</span> FCFA</div>
+              <div>Taux annuel (base): <span id="a-rate">–</span> %</div>
+              <div>Variance: ±<span id="a-variance">–</span> %</div>
+              <div>Durée: <span id="a-years">–</span> ans</div>
+              <div>Fréquence: <span id="a-freq">–</span></div>
+            </div>
+          </div>
+
+          <div class="bloc">
+            <div class="muted">Analyse &amp; Rendement</div>
+            <div style="margin-top:8px">
+              <div><strong>Valeur finale (neutre):</strong> <span id="a-fv">–</span> FCFA</div>
+              <div><strong>Total versé:</strong> <span id="a-tc">–</span> FCFA</div>
+              <div><strong>Intérêts gagnés:</strong> <span id="a-ie">–</span> FCFA</div>
+              <div><strong>Rendement:</strong> <span id="a-ret">–</span> %</div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+
+    </div>
+
+    <div style="margin-top:10px" class="legal" id="legal"><strong>Warning:</strong> Simulations provided are indicative and do not constitute a guarantee of return. 
+        Past performance is not indicative of future results. For more advices, please refer to The Harvest Asset Management. 
+    </div>
+
+    <footer>
+      © <span id="year">2025</span>Harvest Asset Management Tous droits reserves.
+      <div style="margin-top:6px;font-size:0.82rem;color:var(--muted)">Un nouvel Horizon pour vos placements </div>
+      <div style="margin-top:6px;font-size:0.82rem;color:var(--muted)">Conçu par <span class="link">RossLabX</span></div>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+
+
+</body></html>
